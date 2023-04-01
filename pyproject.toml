@@ -9,6 +9,7 @@ packages = [{include = "bjj_journey"}]
 [tool.poetry.dependencies]
 python = "^3.8"
 alembic = "^1.10.2"
+psycopg2-binary = "^2.9.5"
 
 
 [build-system]
