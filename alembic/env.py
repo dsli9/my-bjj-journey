@@ -1,16 +1,21 @@
 from logging.config import fileConfig
+from dotenv import load_dotenv
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
+from bjj_journey.database_utils import get_database_url
+
+load_dotenv()
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 config.set_main_option(
     'sqlalchemy.url',
-    'postgresql://derek:password@localhost:52503/bjj'
+    get_database_url()
 )
 
 

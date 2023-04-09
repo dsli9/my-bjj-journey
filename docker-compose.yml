@@ -1,8 +1,8 @@
 version: '3.7'
 
 services:
-  bjj-db:
-    image: postgres:13.6
+  bjj-dev-db:
+    image: postgres:15
     container_name: bjj-dev-db
     environment:
       - POSTGRES_USER=derek

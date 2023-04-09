@@ -30,6 +30,16 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("type", sa.Text, nullable=False),
         sa.Column("name", sa.Text, nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
         schema="bjj"
 
     )
@@ -38,6 +48,16 @@ def upgrade() -> None:
         "position",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("name", sa.Text, nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
         schema="bjj"
     )
 
@@ -45,10 +65,20 @@ def upgrade() -> None:
         "class",
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("type", sa.Text, nullable=False),
-        sa.Column("duration", sa.Float, nullable=False,
+        sa.Column("duration", sa.Integer, nullable=False,
                   comment="Duration of class in minutes"),
         sa.Column("location", sa.Text, nullable=False),
         sa.Column("name", sa.Text, nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
         schema="bjj"
     )
 
@@ -62,6 +92,16 @@ def upgrade() -> None:
             primary_key=True
         ),
         sa.Column("notes", sa.Text, nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
         schema="bjj"
     )
 
@@ -77,6 +117,16 @@ def upgrade() -> None:
         ),
         sa.Column(
             "move_id", sa.Integer, sa.ForeignKey("bjj.move.id"), nullable=False
+        ),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
         ),
         sa.ForeignKeyConstraint(
             ["date", "class_id"],
@@ -100,6 +150,16 @@ def upgrade() -> None:
             sa.Integer,
             sa.ForeignKey("bjj.position.id"),
             nullable=False
+        ),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("NOW()")
         ),
         sa.ForeignKeyConstraint(
             ["date", "class_id"],
