@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: int_moves_practiced_joined
+    columns:
+      - name: date
+        tests:
+          - not_null
+        description: Test
+
+      - name: year
+        tests:
+          - not_null
+
+      - name: class_id
+        tests:
+          - not_null
+
+      - name: move_id
+        tests:
+          - not_null
+
+      - name: move
+        tests:
+          - not_null

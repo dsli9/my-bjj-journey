@@ -1,6 +1,5 @@
-"""bjj_journey.data_pipeline
+"""bjj_journey.data_pipeline - Pull and store data used for the BJJ dashboard.
 
-Pull and store data used for the BJJ dashboard.
 """
 import argparse
 from datetime import timedelta
@@ -17,6 +16,10 @@ from sqlalchemy import Connection, Engine, MetaData, select
 from bjj_journey.data_pipeline.checks import check_ids, validate_table
 from bjj_journey.database_utils import (
     BJJ_SCHEMA_NAME,
+    CLASS_ATTD_TABLE,
+    MOVES_PRACTICED_TABLE,
+    POSITION_TABLE,
+    POSITIONS_PRACTICED_TABLE,
     create_database_engine,
     delete_data_from_table,
     get_metadata,
@@ -67,8 +70,12 @@ class BJJDataPipeline:
         "move4",
     ]
     MOVE_TABLE_COLS = ["date", "class_id", "move_id"]
-    # order matters here - class_attendance should be last
-    TABLES_TO_UPDATE = ["positions_practiced", "moves_practiced", "class_attendance"]
+    # Order matters here - class_attendance should be last
+    TABLES_TO_UPDATE = [
+        POSITIONS_PRACTICED_TABLE,
+        MOVES_PRACTICED_TABLE,
+        CLASS_ATTD_TABLE,
+    ]
     SEQUENCES_TO_RESET = ["positions_practiced_id_seq", "moves_practiced_id_seq"]
 
     def __init__(self):
@@ -76,7 +83,7 @@ class BJJDataPipeline:
         self._db_engine = create_database_engine()
         self._metadata = get_metadata(self._db_engine)
 
-    def _load_data_from_spreadsheet(
+    def load_data_from_spreadsheet(
         self, spreadsheet_name: str, worksheet_name: str
     ) -> pd.DataFrame:
         """
@@ -120,7 +127,10 @@ class BJJDataPipeline:
         stmt = select(table_obj.c.id, table_obj.c.name)
 
         LOGGER.info("Getting IDs from %s", schema_and_table)
-        return query_database(stmt, con=self._db_engine)
+        table_ids_df = query_database(stmt, con=self._db_engine)
+
+        assert isinstance(table_ids_df, pd.DataFrame)  # make mypy happy
+        return table_ids_df
 
     def _merge_in_table_ids(self, data: pd.DataFrame, table: str) -> pd.DataFrame:
         """Merge IDs into a given dataframe.
@@ -164,7 +174,7 @@ class BJJDataPipeline:
                 applicable for all future bjj database table inserts.
         """
 
-        # adjust column names
+        # Adjust column names
         def adjust_col_names(col):
             """
             Lowercase and remove non-alphanumeric characters from
@@ -174,13 +184,13 @@ class BJJDataPipeline:
 
         data = data.rename(mapper=adjust_col_names, axis="columns")
 
-        # change empty strings to None
+        # Change empty strings to None
         data = data.replace("", None)
 
-        # add in class IDs
+        # Add in class IDs
         data = self._merge_in_table_ids(data, table="class")
 
-        # keep necessary columns
+        # Keep necessary columns
         data = data[self.WORKSHEET_COLS_TO_KEEP]
 
         return data
@@ -189,7 +199,7 @@ class BJJDataPipeline:
         self, data: pd.DataFrame
     ) -> pd.DataFrame:
         """Prep data for insertion into bjj.positions_practiced"""
-        # reshape worksheet data from long to wide (each position gets its own row)
+        # Reshape worksheet data from long to wide (each position gets its own row)
         data = data[self.WORKSHEET_COLS_FOR_POSITION_TABLE]
         data = pd.melt(
             data,
@@ -199,20 +209,20 @@ class BJJDataPipeline:
         )
         data = data.drop(columns=["variable"])
 
-        # remove records missing a position
+        # Remove records missing a position
         data = data[~data["position"].isna()]
 
-        # add in position IDs
-        data = self._merge_in_table_ids(data, table="position")
+        # Add in position IDs
+        data = self._merge_in_table_ids(data, table=POSITION_TABLE)
 
-        # keep necessary columns
+        # Keep necessary columns
         data = data[self.POSITION_TABLE_COLS]
 
         return data
 
     def _prep_data_for_moves_practiced_table(self, data: pd.DataFrame) -> pd.DataFrame:
         """Prep data for insertion into bjj.moves_practiced"""
-        # reshape worksheet data from long to wide (each move gets its own row)
+        # Reshape worksheet data from long to wide (each move gets its own row)
         data = data[self.WORKSHEET_COLS_FOR_MOVE_TABLE]
         data = pd.melt(
             data,
@@ -222,13 +232,13 @@ class BJJDataPipeline:
         )
         data = data.drop(columns=["variable"])
 
-        # remove records missing a position
+        # Remove records missing a move
         data = data[~data["move"].isna()]
 
-        # add in position IDs
+        # Add in move IDs
         data = self._merge_in_table_ids(data, table="move")
 
-        # keep necessary columns
+        # Keep necessary columns
         data = data[self.MOVE_TABLE_COLS]
 
         return data
@@ -242,7 +252,7 @@ class BJJDataPipeline:
         transaction.
         """
         data = data[self.CLASS_ATTENDANCE_TABLE_COLS]
-        update_table(data, table="class_attendance", con=conn)
+        update_table(data, table=CLASS_ATTD_TABLE, con=conn)
 
     def _update_positions_practiced_table(
         self, data: pd.DataFrame, conn: Connection
@@ -253,7 +263,7 @@ class BJJDataPipeline:
         transaction.
         """
         data = self._prep_data_for_positions_practiced_table(data)
-        update_table(data, table="positions_practiced", con=conn)
+        update_table(data, table=POSITIONS_PRACTICED_TABLE, con=conn)
 
     def _update_moves_practiced_table(
         self, data: pd.DataFrame, conn: Connection
@@ -264,7 +274,7 @@ class BJJDataPipeline:
         transaction.
         """
         data = self._prep_data_for_moves_practiced_table(data)
-        update_table(data, table="moves_practiced", con=conn)
+        update_table(data, table=MOVES_PRACTICED_TABLE, con=conn)
 
     def _update_bjj_tables(self, data: pd.DataFrame) -> None:
         """
@@ -277,7 +287,7 @@ class BJJDataPipeline:
             for table in self.TABLES_TO_UPDATE:
                 delete_data_from_table(table, metadata=self._metadata, con=conn)
 
-            # after deleting, we want to reset sequence
+            # After deleting, we want to reset sequence
             for sequence in self.SEQUENCES_TO_RESET:
                 reset_sequence(sequence, con=conn)
 
@@ -287,22 +297,22 @@ class BJJDataPipeline:
 
     def run(self) -> None:
         """Run the BJJ data pipeline"""
-        # mark the start of the run for measuring execution duration
+        # Mark the start of the run for measuring execution duration
         LOGGER.info("Begin BJJ data pipeline")
         start_time = time.perf_counter()
 
-        # pull data from google spreadsheet
-        bjj_data = self._load_data_from_spreadsheet(
+        # Pull data from google spreadsheet
+        bjj_data = self.load_data_from_spreadsheet(
             self.BJJ_SPREADSHEET_NAME, self.BJJ_WORKSHEET_NAME
         )
 
-        # get data ready for insert in a general way
+        # Get data ready for insert in a general way
         bjj_data = self._normalize_data(bjj_data)
 
-        # update tables
+        # Update tables
         self._update_bjj_tables(bjj_data)
 
-        # measure execution duration
+        # Measure execution duration
         LOGGER.info("BJJ data pipeline has finished running")
         end_time = time.perf_counter()
         duration = end_time - start_time
@@ -336,11 +346,11 @@ def main() -> None:
     args = parse_args()
     set_up_logging(args.verbosity)
 
-    # load credentials from .env file
+    # Load credentials from .env file
     load_dotenv()
 
-    # initialize pipeline
+    # Initialize pipeline
     bjj_pipeline = BJJDataPipeline()
 
-    # run pipeline
+    # Run pipeline
     bjj_pipeline.run()

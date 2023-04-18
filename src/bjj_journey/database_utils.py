@@ -1,7 +1,7 @@
-"""bjj_journey.database_utils
+"""bjj_journey.database_utils - Utilities for interacting with the bjj database.
 
-Utilities for interacting with the bjj database.
 """
+from datetime import datetime
 import logging
 import os
 import urllib.parse
@@ -31,6 +31,16 @@ DATABASE_ENV_VAR = "BJJ_DB_DATABASE"
 PORT_ENV_VAR = "BJJ_DB_PORT"
 
 BJJ_SCHEMA_NAME = "bjj"
+
+POSITION_TABLE = "position"
+MOVE_TABLE = "move"
+CLASS_TABLE = "class"
+CLASS_ATTD_TABLE = "class_attendance"
+POSITIONS_PRACTICED_TABLE = "positions_practiced"
+MOVES_PRACTICED_TABLE = "moves_practiced"
+CLASS_ATTD_METRICS_TABLE = "class_attendance_metrics"
+POSITION_METRICS_TABLE = "position_metrics"
+MOVE_METRICS_TABLE = "move_metrics"
 
 
 def get_database_host() -> str:
@@ -143,19 +153,30 @@ def resolve_sql_execution(
     return result
 
 
-def query_database(stmt: Select, con: Union[Connection, Engine]) -> pd.DataFrame:
+def query_database(
+    stmt: Select, con: Union[Connection, Engine], scalar: bool = False
+) -> Union[int, str, bool, datetime, pd.DataFrame]:
     """Query a database table and return the results as a pandas DataFrame.
 
     Args:
         stmt: a SQLAlchemy Select construct used to select data from a database.
         con: a SQLAlchemy connection to a database. Can either be a
             SQLAlchemy Engine object or a Connection object.
+        scalar: indicates if the return output should be a scalar value or not.
 
     Returns:
-        a pandas DataFrame containing the result of the select statement
+        a pandas DataFrame containing the result of the select statement,
+            or a scalar value.
     """
     result = resolve_sql_execution(stmt, con)
-    columns = list(result.keys())  # this line is mostly to make mypy happy
+
+    if scalar:
+        value = result.scalar()
+
+        assert value  # make mypy happy
+        return value
+
+    columns = list(result.keys())  # This line is mostly to make mypy happy
     return pd.DataFrame(data=result.fetchall(), columns=columns)
 
 

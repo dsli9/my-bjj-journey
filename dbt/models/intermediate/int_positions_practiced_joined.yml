@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: int_positions_practiced_joined
+    columns:
+      - name: date
+        tests:
+          - not_null
+        description: Test
+
+      - name: year
+        tests:
+          - not_null
+
+      - name: class_id
+        tests:
+          - not_null
+
+      - name: position_id
+        tests:
+          - not_null
+
+      - name: position
+        tests:
+          - not_null

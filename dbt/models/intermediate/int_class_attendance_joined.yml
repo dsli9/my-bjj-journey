@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: int_class_attendance_joined
+    columns:
+      - name: date
+        tests:
+          - not_null
+        description: Test
+
+      - name: year
+        tests:
+          - not_null
+
+      - name: month
+        tests:
+          - not_null
+
+      - name: class_id
+        tests:
+          - not_null
+
+      - name: class
+        tests:
+          - not_null
+
+      - name: class_type
+        tests:
+          - not_null
+
+      - name: class_duration
+        tests:
+          - not_null

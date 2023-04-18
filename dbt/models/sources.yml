@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: bjj
+    database: bjj
+    schema: bjj
+    tables:
+      - name: class_attendance
+      - name: positions_practiced
+      - name: moves_practiced
+      - name: position
+      - name: move
+      - name: class

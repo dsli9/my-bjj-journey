@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: class_attendance_metrics
+    columns:
+      - name: aggregation_category
+        tests:
+          - not_null
+
+      - name: aggregation_value
+      - name: metric_name
+      - name: metric_value

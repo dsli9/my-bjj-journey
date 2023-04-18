@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: move_metrics
+    columns:
+      - name: move
+        tests:
+          - not_null
+        description: Test
+
+      - name: aggregation_category
+        tests:
+          - not_null
+
+      - name: aggregation_value
+      - name: metric_name
+      - name: metric_value
