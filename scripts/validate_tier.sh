@@ -16,7 +16,7 @@ CMD="${1}"
 if [[ -z "${TIER}" ]];
     then
         echo "No TIER environment variable provided. Setting to 'dev' by default."
-		TIER=dev ${CMD}
+        TIER=dev ${CMD}
 elif [[ "${TIER}" != "dev" && "${TIER}" != "prod" ]]
     then
         echo "${TIER} is not a valid tier. Should be either 'dev' or 'prod'"
