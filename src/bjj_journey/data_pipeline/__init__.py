@@ -11,7 +11,7 @@ import gspread
 import pandas as pd
 
 from dotenv import load_dotenv
-from sqlalchemy import Connection, Engine, MetaData, select
+from sqlalchemy import Connection, select
 
 from bjj_journey.data_pipeline.checks import check_ids, validate_table
 from bjj_journey.database_utils import (
@@ -28,7 +28,7 @@ from bjj_journey.database_utils import (
     update_table,
 )
 
-from bjj_journey.logging_utils import set_up_logging
+from bjj_journey.utils import load_dotenv_file, set_up_logging
 
 
 LOGGER = logging.getLogger(__name__)
@@ -346,8 +346,7 @@ def main() -> None:
     args = parse_args()
     set_up_logging(args.verbosity)
 
-    # Load credentials from .env file
-    load_dotenv()
+    load_dotenv_file()
 
     # Initialize pipeline
     bjj_pipeline = BJJDataPipeline()

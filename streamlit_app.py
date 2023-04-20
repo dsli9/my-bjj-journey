@@ -2,7 +2,6 @@
 
 """
 from typing import Final
-from dotenv import load_dotenv
 import streamlit as st
 from bjj_journey.streamlit_app.data import BJJDataFetcher
 
@@ -14,9 +13,10 @@ from bjj_journey.streamlit_app.utils import (
     add_vertical_space,
     resolve_most_practiced_headline,
 )
+from bjj_journey.utils import load_dotenv_file
 
 
-load_dotenv()
+load_dotenv_file()
 
 DATA_FETCHER = BJJDataFetcher()
 

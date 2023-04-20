@@ -2,7 +2,6 @@ version: 2
 
 sources:
   - name: bjj
-    database: bjj
     schema: bjj
     tables:
       - name: class_attendance

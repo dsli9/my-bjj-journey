@@ -30,6 +30,7 @@ PASSWORD_ENV_VAR = "BJJ_DB_PWD"
 DATABASE_ENV_VAR = "BJJ_DB_DATABASE"
 PORT_ENV_VAR = "BJJ_DB_PORT"
 
+DEFAULT_DATABASE_PORT = 5432
 BJJ_SCHEMA_NAME = "bjj"
 
 POSITION_TABLE = "position"
@@ -97,12 +98,19 @@ def get_database_port() -> int:
     if PORT_ENV_VAR in os.environ:
         port = int(os.environ[PORT_ENV_VAR])
         LOGGER.debug("Using database port: %r", port)
-        return port
 
-    raise ValueError(
-        "Cannot find bjj database postgresql port in the environment variable:"
-        f" {PORT_ENV_VAR}"
-    )
+    else:
+        port = DEFAULT_DATABASE_PORT
+        LOGGER.info(
+            (
+                "Cannot find database postgresql port in the environment variable (%s)."
+                " Using default: %r"
+            ),
+            PORT_ENV_VAR,
+            DEFAULT_DATABASE_PORT,
+        )
+
+    return port
 
 
 def get_database_url(redacted: bool = False) -> str:

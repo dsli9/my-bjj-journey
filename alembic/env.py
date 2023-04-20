@@ -1,5 +1,4 @@
 from logging.config import fileConfig
-from dotenv import load_dotenv
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -7,8 +6,10 @@ from sqlalchemy import pool
 from alembic import context
 
 from bjj_journey.database_utils import get_database_url
+from bjj_journey.utils import load_dotenv_file
 
-load_dotenv()
+
+load_dotenv_file()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

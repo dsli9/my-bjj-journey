@@ -10,15 +10,16 @@ Repository contains:
 
 ## Future Updates
 
-1. Migration to production database and deployment of Streamlit app.
+1. Deployment of Streamlit app.
 2. Automation of data pipeline.
 3. Creation of a CI/CD process.
 
 ## Tools Used
 
-- **Database Migrations**: Alembic
-- **Data Transformation**: Python, dbt
-- **Data Visualization**: Streamlit
-- **Static Type Checker**: Mypy
-- **Static Code Analyzer**: Pylint
-- **Code Formatter**: Black
+- **Database**: PostgreSQL 15 via [Neon](https://neon.tech/)
+- **Database Migrations**: [Alembic](https://alembic.sqlalchemy.org/en/latest/)
+- **Data Transformation**: [dbt](https://www.getdbt.com/)
+- **Data Visualization**: [Streamlit](https://streamlit.io/)
+- **Static Type Checker**: [Mypy](https://mypy-lang.org/)
+- **Static Code Analyzer**: [Pylint](https://pypi.org/project/pylint/)
+- **Code Formatter**: [Black](https://black.readthedocs.io/en/stable/)
