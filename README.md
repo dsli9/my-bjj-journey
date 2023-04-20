@@ -3,6 +3,9 @@
 A personal project that extracts, stores, and displays data related to
 my Brazilian jiu-jitsu journey.
 
+Dashboard/app can be viewed
+[here](https://dsli9-my-bjj-journey-streamlit-app-7zufua.streamlit.app/).
+
 Repository contains:
 
 - Pipeline for extracting and transforming data from a Google spreadsheet.
@@ -10,9 +13,8 @@ Repository contains:
 
 ## Future Updates
 
-1. Deployment of Streamlit app.
-2. Automation of data pipeline.
-3. Creation of a CI/CD process.
+- Automation of data pipeline.
+- Creation of a CI/CD process.
 
 ## Tools Used
 
