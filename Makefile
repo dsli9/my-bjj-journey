@@ -1,6 +1,7 @@
-.PHONY: build data_pipeline_run data_pipeline_run_docker dbt_run dbt_run_docker \
+.PHONY: build clean data_pipeline_run data_pipeline_run_docker dbt_run dbt_run_docker \
 		format_code initialize pylint pylint_errors type_check test migrations_run \
-		migrations_run_docker streamlit_run
+		migrations_run_docker streamlit_run bump_version_patch_commit \
+		bump_version_major bump_version_minor bump_version_patch bump_version_release
 
 SHELL=/bin/bash -o pipefail
 
@@ -17,6 +18,34 @@ IMAGE_TAG = $(IMAGE_NAME_FULL):$(VERSION_NUMBER)
 build:
 	@echo "Building Docker image $(IMAGE_TAG)."
 	@docker build --tag $(IMAGE_TAG) .
+
+bump_version_major:
+	@echo "Bumping major version. Current version is $(VERSION_NUMBER)"
+	@poetry run python bumpversion major --verbose
+
+bump_version_minor:
+	@echo "Bumping minor version. Current version is $(VERSION_NUMBER)"
+	@poetry run bumpversion minor --verbose
+
+bump_version_patch:
+	@echo "Bumping patch version. Current version is $(VERSION_NUMBER)"
+	@poetry run bumpversion patch --verbose
+
+bump_version_patch_commit:
+	@echo "Bumping patch version. Current version is $(VERSION_NUMBER)"
+	@poetry run bumpversion patch --verbose --commit
+
+bump_version_release:
+	@echo "Bumping version to a firm release. Current version is $(VERSION_NUMBER)"
+	@poetry run bumpversion release --verbose --commit --tag
+
+clean:
+	@echo "Checking for dangling docker images."
+	@to_delete="$(shell docker images -f reference=$(IMAGE_NAME_FULL) -f dangling=true -q)"
+	@if [ -n "${to_delete}" ]; then\
+		echo "Deleting dangling images."; \
+		docker rmi -f ${to_delete}; \
+	fi
 
 data_pipeline_run:
 	@echo "Running data pipeline locally"
@@ -78,6 +107,15 @@ pylint_errors:
 	@echo "Running pylint --errors-only"
 	@poetry run pylint streamlit_app.py src --errors-only
 
+release_tag:
+	@echo "Releasing tag $(IMAGE_TAG) to remote repository."
+	@docker push $(IMAGE_TAG)
+
+release_latest:
+	@echo "Releasing tag $(LATEST_TAG) to remote repository."
+	@docker tag $(IMAGE_TAG) $(LATEST_TAG)
+	@docker push $(LATEST_TAG)
+
 streamlit_run:
 	@echo Running Streamlit app
 	@scripts/validate_tier.sh "poetry run streamlit run streamlit_app.py"
@@ -87,3 +125,4 @@ type_check:
 	@poetry run mypy streamlit_app.py src
 
 test: type_check pylint_errors
+release: clean test build release_tag

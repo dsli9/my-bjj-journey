@@ -3,8 +3,7 @@
 A personal project that extracts, stores, and displays data related to
 my Brazilian jiu-jitsu journey.
 
-Dashboard/app can be viewed
-[here](https://dsli9-my-bjj-journey-streamlit-app-7zufua.streamlit.app/).
+**Dashboard app:** https://bjj-journey.streamlit.app/
 
 Repository contains:
 
