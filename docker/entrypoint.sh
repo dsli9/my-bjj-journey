@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Entrypoint script for docker container. Commands get run based on the OPERATION
+# environment variable.
+
 set -eo pipefail
 
 APPLICATION_DIRECTORY=$1

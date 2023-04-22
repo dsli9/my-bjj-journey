@@ -49,33 +49,22 @@ clean:
 
 data_pipeline_run:
 	@echo "Running data pipeline locally"
-	@scripts/validate_tier.sh "poetry run python -m bjj_journey.data_pipeline -v"
+	@scripts/validate_tier.sh
+	@poetry run python -m bjj_journey.data_pipeline -v
 
 data_pipeline_run_docker:
-	@if [[ -z "$${TIER}" ]]; then \
-		echo "TIER environment variable must be provided."; \
-		echo "Valid tiers include dev and prod."; \
-		exit 1; \
-	fi
-	@echo "Running data pipeline locally via docker with tier $${TIER}"
+	@echo "Running data pipeline locally via docker"
+	@scripts/validate_tier.sh
 	@docker/run_locally.sh "$${TIER}" data-pipeline
 
 dbt_run:
-	@if [[ -z "$${TIER}" ]]; then \
-		echo "TIER environment variable must be provided for dbt runs."; \
-		echo "Valid tiers include dev and prod."; \
-		exit 1; \
-	fi
-	@echo "Running dbt locally with target $${TIER}"
+	@echo "Running dbt locally"
+	@scripts/validate_tier.sh
 	@poetry run dbt run --project-dir dbt --target "$${TIER}" --profiles-dir ~/.dbt
 
 dbt_run_docker:
-	@if [[ -z "$${TIER}" ]]; then \
-		echo "TIER environment variable must be provided."; \
-		echo "Valid tiers include dev and prod."; \
-		exit 1; \
-	fi
-	@echo "Running dbt locally via docker with tier $${TIER}"
+	@echo "Running dbt locally via docker"
+	@scripts/validate_tier.sh
 	@docker/run_locally.sh "$${TIER}" dbt
 
 format_code:
@@ -87,16 +76,13 @@ initialize:
 	@poetry install
 
 migrations_run:
-	@echo Running database migrations locally via Alembic
-	@scripts/validate_tier.sh "poetry run alembic upgrade head"
+	@echo "Running database migrations locally"
+	@scripts/validate_tier.sh
+	@poetry run alembic upgrade head
 
 migrations_run_docker:
-	@if [[ -z "$${TIER}" ]]; then \
-		echo "TIER environment variable must be provided."; \
-		echo "Valid tiers include dev and prod."; \
-		exit 1; \
-	fi
-	@echo "Running database migrations locally via docker with tier $${TIER}"
+	@echo "Running database migrations locally via docker"
+	@scripts/validate_tier.sh
 	@docker/run_locally.sh "$${TIER}" migrations
 
 pylint:
