@@ -32,6 +32,7 @@ def set_up_logging(verbosity: int) -> None:
     level = LEVELS[min(verbosity, len(LEVELS) - 1)]
     logger.setLevel(level)
 
+
 def load_dotenv_file():
     """Load a .env file based on tier."""
     tier = os.environ.get("TIER", "dev")
