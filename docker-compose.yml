@@ -4,9 +4,7 @@ services:
   bjj-dev-db:
     image: postgres:15
     container_name: bjj-dev-db
-    environment:
-      - POSTGRES_USER=derek
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=bjj
+    env_file:
+      - docker/db.env
     ports:
       - 52503:5432

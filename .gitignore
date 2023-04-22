@@ -5,3 +5,4 @@ __pycache__/
 logs/
 target/
 dbt_packages/
+.user.yml

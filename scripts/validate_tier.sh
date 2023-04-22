@@ -11,9 +11,11 @@
 # The script takes one positional argument:
 #   - cmd: the command we want to run after validating the TIER env variable.
 
+set -eo pipefail
+
 CMD="${1}"
 
-if [[ -z "${TIER}" ]];
+if [[ -z "${TIER}" ]]
     then
         echo "No TIER environment variable provided. Setting to 'dev' by default."
         TIER=dev ${CMD}

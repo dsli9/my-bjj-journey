@@ -70,7 +70,7 @@ class BJJDataFetcher:
         date = query_database(stmt, con=self._db_engine, scalar=True)
 
         assert isinstance(date, datetime)  # make mypy happy
-        return date.strftime("%Y-%m-%d")
+        return date.strftime("%Y-%m-%d %H:%M:%S %Z")
 
     def get_time_spent_training(self, dashboard_view: str) -> str:
         """Get total time spent training based on the dashboard view."""
