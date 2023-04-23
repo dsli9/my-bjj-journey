@@ -2,7 +2,16 @@ __pycache__/
 *.env
 .vscode
 .mypy_cache
+
+# DBT related files/directories
 logs/
 target/
 dbt_packages/
 .user.yml
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*

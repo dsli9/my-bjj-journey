@@ -1,7 +1,8 @@
 .PHONY: build clean data_pipeline_run data_pipeline_run_docker dbt_run dbt_run_docker \
 		format_code initialize pylint pylint_errors type_check test migrations_run \
 		migrations_run_docker streamlit_run bump_version_patch_commit \
-		bump_version_major bump_version_minor bump_version_patch bump_version_release
+		bump_version_major bump_version_minor bump_version_patch bump_version_release \
+		docker_push_latest docker_push_tag terraform_apply terraform_destroy
 
 SHELL=/bin/bash -o pipefail
 
@@ -93,11 +94,11 @@ pylint_errors:
 	@echo "Running pylint --errors-only"
 	@poetry run pylint streamlit_app.py src --errors-only
 
-release_tag:
+docker_push_tag:
 	@echo "Releasing tag $(IMAGE_TAG) to remote repository."
 	@docker push $(IMAGE_TAG)
 
-release_latest:
+docker_push_latest:
 	@echo "Releasing tag $(LATEST_TAG) to remote repository."
 	@docker tag $(IMAGE_TAG) $(LATEST_TAG)
 	@docker push $(LATEST_TAG)
@@ -106,9 +107,17 @@ streamlit_run:
 	@echo Running Streamlit app
 	@scripts/validate_tier.sh "poetry run streamlit run streamlit_app.py"
 
+terraform_apply:
+	@echo Running terraform apply
+	@terraform -chdir=terraform apply
+
+terraform_destroy:
+	@echo Running terraform destroy
+	@terraform -chdir=terraform destroy
+
 type_check:
 	@echo "Running type check via mypy"
 	@poetry run mypy streamlit_app.py src
 
 test: type_check pylint_errors
-release: clean test build release_tag
+release: clean test build docker_push_tag

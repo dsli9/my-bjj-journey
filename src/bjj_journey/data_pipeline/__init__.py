@@ -4,9 +4,11 @@
 import argparse
 from datetime import timedelta
 import logging
+import os
 import re
 import time
 
+import google.auth
 import gspread
 import pandas as pd
 
@@ -78,10 +80,35 @@ class BJJDataPipeline:
     ]
     SEQUENCES_TO_RESET = ["positions_practiced_id_seq", "moves_practiced_id_seq"]
 
-    def __init__(self):
-        self._gspread_client = gspread.oauth()
+    def __init__(self, user_type: str):
+        self.__validate_user_type(user_type)
+        self._gspread_client = self.__get_gspread_client(user_type)
         self._db_engine = create_database_engine()
         self._metadata = get_metadata(self._db_engine)
+
+    @staticmethod
+    def __validate_user_type(user_type: str) -> None:
+        """Validate that the user type is human or machine."""
+        allowed_user_types = {"human", "machine"}
+        if user_type not in allowed_user_types:
+            raise ValueError(
+                "The user type must be one of the following values:"
+                f" {allowed_user_types}. Got {user_type} instead."
+            )
+
+    @staticmethod
+    def __get_gspread_client(user_type: str) -> gspread.Client:
+        """Authorize gspread based on the user type and return the client.
+
+        Gspread will be authorized via oauth when it is run by a human (i.e. locally
+        in dev). Otherwise, it will get credentials via google.auth since this pipeline
+        will be running on a Google Cloud Run job in production.
+        """
+        if user_type == "human":
+            return gspread.oauth()
+        else:
+            credentials = google.auth.default(scopes=gspread.auth.DEFAULT_SCOPES)[0]
+            return gspread.authorize(credentials)
 
     def load_data_from_spreadsheet(
         self, spreadsheet_name: str, worksheet_name: str
@@ -99,8 +126,8 @@ class BJJDataPipeline:
             a dataframe containing the data from the specified worksheet in the
                 specified spreadsheet.
         """
+        LOGGER.info("Opening the following Google Spreadsheet: %s", spreadsheet_name)
         spreadsheet = self._gspread_client.open(spreadsheet_name)
-        LOGGER.info("Opened the following Google Spreadsheet: %s", spreadsheet_name)
 
         worksheet = spreadsheet.worksheet(worksheet_name)
         data = pd.DataFrame(worksheet.get_all_records())
@@ -349,7 +376,7 @@ def main() -> None:
     load_dotenv_file()
 
     # Initialize pipeline
-    bjj_pipeline = BJJDataPipeline()
+    bjj_pipeline = BJJDataPipeline(os.environ.get("USER_TYPE", "human"))
 
     # Run pipeline
     bjj_pipeline.run()

@@ -12,7 +12,6 @@ Repository contains:
 
 ## Future Updates
 
-- Automation of data pipeline.
 - Creation of a CI/CD process.
 
 ## Tools Used
