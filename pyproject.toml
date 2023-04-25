@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bjj-journey"
-version = "0.1.1"
+version = "0.1.2.dev"
 description = ""
 authors = ["dsli9 <liderek3@gmail.com>"]
 readme = "README.md"
