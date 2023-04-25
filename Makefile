@@ -70,7 +70,7 @@ dbt_run_docker:
 
 format_code:
 	@echo "Formatting code via black"
-	@poetry run black streamlit_app.py src --preview
+	@poetry run black streamlit_app.py src scripts --preview
 
 initialize:
 	@echo "Initializing project via poetry"

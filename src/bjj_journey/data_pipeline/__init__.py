@@ -369,7 +369,6 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     """Pull BJJ data from Google spreadsheet and store in database tables."""
-
     args = parse_args()
     set_up_logging(args.verbosity)
 
