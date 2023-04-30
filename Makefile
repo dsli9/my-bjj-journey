@@ -105,7 +105,8 @@ docker_push_latest:
 
 streamlit_run:
 	@echo Running Streamlit app
-	@scripts/validate_tier.sh "poetry run streamlit run streamlit_app.py"
+	@scripts/validate_tier.sh
+	@poetry run streamlit run streamlit_app.py
 
 terraform_apply:
 	@echo Running terraform apply
@@ -120,4 +121,4 @@ type_check:
 	@poetry run mypy streamlit_app.py src
 
 test: type_check pylint_errors
-release: clean test build docker_push_tag
+push_current_docker_image: clean test build docker_push_tag

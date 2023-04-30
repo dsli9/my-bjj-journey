@@ -30,7 +30,7 @@ feed into the metrics and visualizations.
 Google Cloud infrastructure is provisioned via Terraform, and containerization is
 handled via Docker.
 
-![data-pipeline-diagram](./data-pipeline-diagram.svg)
+![data-pipeline-diagram](./diagrams/data-pipeline-diagram.svg)
 
 ## Future Updates
 

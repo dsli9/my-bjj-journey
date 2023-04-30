@@ -1,6 +1,7 @@
 """bjj_journey.streamlit_app.plots - Create plots for BJJ dashboard app.
 
 """
+from typing import Optional
 import pandas as pd
 import altair as alt
 
@@ -8,7 +9,7 @@ from bjj_journey.streamlit_app.utils import validate_skill_type
 
 
 def create_times_practiced_skill_bar_chart(
-    data: pd.DataFrame, skill_type: str
+    data: pd.DataFrame, skill_type: str, top_n: Optional[int] = 999
 ) -> alt.Chart:
     """
     Create a bar chart displaying the number of times the skills within a skill
@@ -33,6 +34,11 @@ def create_times_practiced_skill_bar_chart(
                 alt.Tooltip("num_times_practiced:Q", title="Times Practiced"),
             ],
         )
+        .transform_window(
+            rank="rank(num_times_practiced)",
+            sort=[alt.SortField("num_times_practiced", order="descending")],
+        )
+        .transform_filter((alt.datum.rank < top_n))
     )
     return chart
 

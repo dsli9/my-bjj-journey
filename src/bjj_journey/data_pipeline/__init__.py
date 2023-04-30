@@ -106,9 +106,9 @@ class BJJDataPipeline:
         """
         if user_type == "human":
             return gspread.oauth()
-        else:
-            credentials = google.auth.default(scopes=gspread.auth.DEFAULT_SCOPES)[0]
-            return gspread.authorize(credentials)
+
+        credentials = google.auth.default(scopes=gspread.auth.DEFAULT_SCOPES)[0]
+        return gspread.authorize(credentials)
 
     def load_data_from_spreadsheet(
         self, spreadsheet_name: str, worksheet_name: str

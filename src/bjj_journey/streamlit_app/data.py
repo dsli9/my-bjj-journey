@@ -4,7 +4,7 @@
 from datetime import datetime
 from typing import List
 import pandas as pd
-from sqlalchemy import func, select
+from sqlalchemy import Engine, func, select
 import streamlit as st
 
 from bjj_journey.database_utils import (
@@ -28,8 +28,8 @@ TIME_TO_LIVE = 3600 * 24
 class BJJDataFetcher:
     """Fetch data for BJJ dashboard.
 
-    Contrary to convention, the "self" argument is named "_self" to make use
-    of streamlit caching.
+    Contrary to convention, the "self" argument for most methods is named "_self"
+    to make use of streamlit caching.
     """
 
     NUM_MONTHS_TRAINED_METRIC = "num_months_trained"
@@ -37,9 +37,14 @@ class BJJDataFetcher:
     NUM_CLASS_MIN_METRIC = "num_class_minutes"
     NUM_TIMES_PRACTICED_METRIC = "num_times_practiced"
 
-    def __init__(_self):
-        _self._db_engine = create_database_engine()
-        _self._metadata = get_metadata(_self._db_engine)
+    def __init__(self):
+        self._db_engine = self._get_database()
+        self._metadata = get_metadata(self._db_engine)
+
+    @st.cache_resource(ttl=TIME_TO_LIVE)
+    def _get_database(_self) -> Engine:
+        """Wrapper for existing function to make use of Streamlit caching"""
+        return create_database_engine()
 
     @staticmethod
     def _resolve_agg_category(dashboard_view: str) -> str:

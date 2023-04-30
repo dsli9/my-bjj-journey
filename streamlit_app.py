@@ -10,7 +10,6 @@ from bjj_journey.streamlit_app.plots import (
     create_times_practiced_skill_bar_chart,
 )
 from bjj_journey.streamlit_app.utils import (
-    add_vertical_space,
     resolve_most_practiced_headline,
 )
 from bjj_journey.utils import load_dotenv_file
@@ -18,16 +17,15 @@ from bjj_journey.utils import load_dotenv_file
 
 load_dotenv_file()
 
-DATA_FETCHER = BJJDataFetcher()
-
 PAGE_TITLE = "BJJ Dashboard"
 APP_TITLE = "BJJ Dashboard"
 PAGE_ICON = ":martial_arts_uniform:"
 LAYOUT: Final = "wide"
 DASHBOARD_VIEW_OPTIONS = ["Overall", "2023", "2022"]
 
-# Set page config
 st.set_page_config(page_title=PAGE_TITLE, page_icon=PAGE_ICON, layout=LAYOUT)
+
+DATA_FETCHER = BJJDataFetcher()
 
 # Sidebar
 with st.sidebar:
@@ -55,8 +53,6 @@ st.title(f"{APP_TITLE} ({dashboard_view})")
 
 # Create columns
 col1, col2, col3 = st.columns(3)
-col4, col5 = st.columns(2)
-col6, col7 = st.columns(2)
 
 # Metrics
 col1.metric(
@@ -80,24 +76,19 @@ most_practiced_position = DATA_FETCHER.determine_most_practiced_skill(
     positions_data, skill_type="position"
 )
 
-with col4:
+with st.container():
     st.header("Positions Practiced")
-    add_vertical_space(1)
+    st.subheader(
+        resolve_most_practiced_headline(
+            dashboard_view, skills=most_practiced_position, skill_type="position"
+        )
+    )
     st.altair_chart(
         altair_chart=create_times_practiced_skill_bar_chart(
             positions_data, skill_type="position"
         ),
         use_container_width=True,
     )
-
-with col5:
-    add_vertical_space(3)
-    st.subheader(
-        resolve_most_practiced_headline(
-            dashboard_view, skills=most_practiced_position, skill_type="position"
-        )
-    )
-
 
 # Moves Practiced
 moves_data = DATA_FETCHER.get_num_times_practiced_skill(
@@ -107,9 +98,24 @@ most_practiced_move = DATA_FETCHER.determine_most_practiced_skill(
     moves_data, skill_type="move"
 )
 
-with col6:
+with st.container():
     st.header("Moves Practiced")
-    add_vertical_space(1)
+    st.subheader(
+        resolve_most_practiced_headline(
+            dashboard_view, skills=most_practiced_move, skill_type="move"
+        )
+    )
+
+tab1, tab2 = st.tabs(["Top 10", "All Moves"])
+
+with tab1:
+    st.altair_chart(
+        altair_chart=create_times_practiced_skill_bar_chart(
+            moves_data, skill_type="move", top_n=10
+        ),
+        use_container_width=True,
+    )
+with tab2:
     st.altair_chart(
         altair_chart=create_times_practiced_skill_bar_chart(
             moves_data, skill_type="move"
@@ -117,22 +123,15 @@ with col6:
         use_container_width=True,
     )
 
-with col7:
-    add_vertical_space(3)
-    st.subheader(
-        resolve_most_practiced_headline(
-            dashboard_view, skills=most_practiced_move, skill_type="move"
-        )
-    )
-
 # Line chart showing number of classes per month
-st.header("Number of Classes by Month")
+with st.container():
+    st.header("Number of Classes by Month")
 
-line_chart_data = DATA_FETCHER.get_num_classes_per_month(dashboard_view)
+    line_chart_data = DATA_FETCHER.get_num_classes_per_month(dashboard_view)
 
-st.altair_chart(
-    altair_chart=create_num_classes_by_month_line_chart(
-        line_chart_data, dashboard_view=dashboard_view
-    ),
-    use_container_width=True,
-)
+    st.altair_chart(
+        altair_chart=create_num_classes_by_month_line_chart(
+            line_chart_data, dashboard_view=dashboard_view
+        ),
+        use_container_width=True,
+    )
